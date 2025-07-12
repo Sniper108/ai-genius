@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover top AI tools with expert reviews, exclusive deals, and affiliate insights at AI Genius. Boost your productivity and earnings today.">
+    <title>AI Genius - Earn Passive Income with Top AI Tools</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; margin: 0; color: #333; background: #fff; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background: #007BFF; color: #fff; padding: 10px 0; position: sticky; top: 0; z-index: 10; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; }
+        nav ul { list-style: none; display: flex; gap: 20px; margin: 0; }
+        nav a { color: #fff; text-decoration: none; }
+        .cta { background: #FFC107; color: #333; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+        #hero { background: linear-gradient(to right, #007BFF, #0056b3); color: #fff; text-align: center; padding: 100px 0; position: relative; overflow: hidden; }
+        #hero::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSIjRkZGMTA3IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiIG9wYWNpdHk9IjAuMyIgY2xhc3M9ImFpLWFuaW0iLz48L3N2Zz4=') repeat; animation: fadeIcons 10s infinite; opacity: 0.2; }
+        @keyframes fadeIcons { 0% { opacity: 0.1; } 50% { opacity: 0.3; } 100% { opacity: 0.1; } }
+        #hero h1 { font-size: 48px; margin: 0 0 20px; position: relative; z-index: 1; }
+        #hero p { font-size: 24px; margin: 0 0 30px; position: relative; z-index: 1; }
+        .sticky-cta { position: fixed; bottom: 20px; right: 20px; z-index: 11; display: none; }
+        #value { padding: 60px 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .card { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card svg { width: 60px; height: 60px; margin-bottom: 10px; }
+        .card h3 { font-size: 24px; }
+        #blog { background: #f8f9fa; padding: 60px 0; }
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .post-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; gap: 20px; align-items: center; }
+        .post-card img { width: 40%; height: auto; border-radius: 8px; flex-shrink: 0; }
+        .post-content { flex: 1; }
+        .post-card h3 { font-size: 20px; margin-top: 0; }
+        .post-card .read-time { font-size: 14px; color: #666; display: block; margin-bottom: 10px; }
+        .load-more { text-align: center; margin-top: 30px; }
+        .load-more .cta { background: #DC3545; color: #fff; }
+        #social-proof { padding: 60px 0; text-align: center; position: relative; overflow: hidden; height: 200px; }
+        .carousel { display: flex; animation: carouselSlide 20s infinite linear; }
+        .testimonial { min-width: 100%; font-style: italic; display: flex; flex-direction: column; align-items: center; }
+        .testimonial img { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px; }
+        .stars { color: #FFC107; margin-bottom: 5px; }
+        @keyframes carouselSlide { 0% { transform: translateX(0); } 25% { transform: translateX(-100%); } 50% { transform: translateX(-200%); } 75% { transform: translateX(-300%); } 100% { transform: translateX(0); } }
+        .disclosure { font-size: 14px; color: #666; margin-top: 20px; }
+        #newsletter-floating { position: fixed; top: 20%; right: 20px; width: 300px; background: #FFC107; padding: 20px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 9; text-align: center; display: none; }
+        #newsletter-floating h2 { font-size: 20px; margin: 0 0 10px; }
+        #newsletter-floating p { font-size: 14px; margin: 0 0 10px; }
+        #newsletter-floating input { padding: 8px; margin: 5px 0; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
+        #newsletter-floating button { background: #007BFF; color: #fff; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+        #newsletter-floating .privacy { font-size: 12px; margin-top: 10px; }
+        @media (max-width: 768px) { #newsletter-floating { width: 80%; right: 10%; top: auto; bottom: 20px; } }
+        footer { background: #333; color: #fff; padding: 40px 0; }
+        footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        footer ul { list-style: none; display: flex; gap: 15px; margin: 0; }
+        footer a { color: #fff; text-decoration: none; }
+        .social i { margin-right: 10px; }
+        @media (max-width: 768px) { 
+            .grid, .blog-grid { grid-template-columns: 1fr; } 
+            header .container, footer .container { flex-direction: column; text-align: center; } 
+            nav ul { flex-direction: column; } 
+            .post-card { flex-direction: column; } 
+            .post-card img { width: 100%; } 
+        }
+        /* Accessibility & SEO */
+        a:focus, button:focus { outline: 2px solid #FFC107; }
+        img { alt: ""; } /* Filled in HTML */
+        /* Schema example for blog posts */
+        .post-card { /* Add schema in HTML */ }
+    </style>
+    <script>
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > window.innerHeight * 0.3) {
+                document.getElementById('newsletter-floating').style.display = 'block';
+            }
+            document.getElementById('sticky-cta').style.display = (window.scrollY > 200) ? 'block' : 'none';
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><i class="fas fa-hat-wizard"></i> AI Genius</div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">About</a></li>
+                </ul>
+            </nav>
+            <a href="#blog" class="cta">Explore Tools</a>
+        </div>
+    </header>
+    <section id="hero">
+        <div class="container">
+            <h1>Earn Passive Income with Top AI Tools – Reviews & Deals Inside</h1>
+            <p>Handpicked AI Tools for Marketers – Start Earning Commissions Today</p>
+            <a href="#newsletter-floating" class="cta">Claim Your Free Guide & Deals</a>
+        </div>
+    </section>
+    <a href="#newsletter-floating" class="cta sticky-cta">Claim Free Guide</a>
+    <section id="value">
+        <div class="container">
+            <div class="grid">
+                <div class="card">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke="#007BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#FFC107" stroke-width="2" fill="none"/></svg>
+                    <h3>Honest Reviews Backed by Real Tests</h3>
+                    <p>We test every tool to give you unbiased insights.</p>
+                </div>
+                <div class="card">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2V22M5 5H19M5 19H19" stroke="#007BFF" stroke-width="2"/><rect x="4" y="4" width="16" height="16" rx="2" stroke="#FFC107" stroke-width="2" fill="none"/></svg>
+                    <h3>Recurring Commissions on Premium Tools</h3>
+                    <p>Earn ongoing income through our affiliate recommendations.</p>
+                </div>
+                <div class="card">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5H21V19H3V5Z" stroke="#007BFF" stroke-width="2"/><path d="M3 12H21" stroke="#FFC107" stroke-width="2"/></svg>
+                    <h3>Free Guides to Affiliate Success with AI</h3>
+                    <p>Download resources to maximize your marketing efforts.</p>
+                </div>
+                <div class="card">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="6" r="4" stroke="#007BFF" stroke-width="2"/><path d="M4 20C4 16.6863 7.31371 14 11 14H13C16.6863 14 20 16.6863 20 20" stroke="#FFC107" stroke-width="2"/></svg>
+                    <h3>Community Tips from AI Marketers</h3>
+                    <p>Join discussions and get pro tips from fellow affiliates.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="blog">
+        <div class="container">
+            <h2>Featured Blog Posts</h2>
+            <div class="blog-grid">
+                <article class="post-card" itemscope itemtype="https://schema.org/BlogPosting">
+                    <img src="https://via.placeholder.com/300x200?text=Jasper+AI" alt="Jasper AI interface screenshot">
+                    <div class="post-content">
+                        <h3 itemprop="headline">Jasper AI: Revolutionize Your Content Creation</h3>
+                        <p itemprop="abstract">Discover how Jasper boosts writing efficiency. Limited-Time Discount via My Link.</p>
+                        <span class="read-time">5 min read</span>
+                        <a href="/blog/jasper" class="cta">Unlock Deal Now – Free Trial Inside</a>
+                    </div>
+                </article>
+                <article class="post-card" itemscope itemtype="https://schema.org/BlogPosting">
+                    <img src="https://via.placeholder.com/300x200?text=SEMrush" alt="SEMrush dashboard screenshot">
+                    <div class="post-content">
+                        <h3 itemprop="headline">SEMrush: Master SEO with AI Insights</h3>
+                        <p itemprop="abstract">Top tool for keyword research and rankings. Claim Deal Now.</p>
+                        <span class="read-time">7 min read</span>
+                        <a href="/blog/semrush" class="cta">Unlock Deal Now – Free Trial Inside</a>
+                    </div>
+                </article>
+                <article class="post-card" itemscope itemtype="https://schema.org/BlogPosting">
+                    <img src="https://via.placeholder.com/300x200?text=Grammarly" alt="Grammarly editing screenshot">
+                    <div class="post-content">
+                        <h3 itemprop="headline">Grammarly: Perfect Your Writing with AI</h3>
+                        <p itemprop="abstract">Essential for error-free content. Try Now with Exclusive Offer.</p>
+                        <span class="read-time">4 min read</span>
+                        <a href="/blog/grammarly" class="cta">Unlock Deal Now – Free Trial Inside</a>
+                    </div>
+                </article>
+                <article class="post-card" itemscope itemtype="https://schema.org/BlogPosting">
+                    <img src="https://via.placeholder.com/300x200?text=Surfer+SEO" alt="Surfer SEO optimization screenshot">
+                    <div class="post-content">
+                        <h3 itemprop="headline">Surfer SEO: Optimize Content for Better Rankings</h3>
+                        <p itemprop="abstract">AI-driven SEO tips for top Google spots. Get Started Today.</p>
+                        <span class="read-time">6 min read</span>
+                        <a href="/blog/surfer" class="cta">Unlock Deal Now – Free Trial Inside</a>
+                    </div>
+                </article>
+            </div>
+            <div class="load-more">
+                <a href="#" class="cta">See More AI Tool Reviews & Deals</a>
+            </div>
+        </div>
+    </section>
+    <section id="social-proof">
+        <div class="container">
+            <h2>What Our Readers Say</h2>
+            <div class="carousel">
+                <div class="testimonial">
+                    <img src="https://via.placeholder.com/50x50?text=MT" alt="User avatar for Mark T.">
+                    <div class="stars">★★★★★</div>
+                    <p>"This review helped me earn my first $500 commission!" - Mark T.</p>
+                </div>
+                <div class="testimonial">
+                    <img src="https://via.placeholder.com/50x50?text=SL" alt="User avatar for Sarah L.">
+                    <div class="stars">★★★★★</div>
+                    <p>"Honest and detailed—boosted my productivity instantly." - Sarah L.</p>
+                </div>
+                <div class="testimonial">
+                    <img src="https://via.placeholder.com/50x50?text=JD" alt="User avatar for John D.">
+                    <div class="stars">★★★★★</div>
+                    <p>"Great insights on AI tools—doubled my traffic!" - John D.</p>
+                </div>
+                <div class="testimonial">
+                    <img src="https://via.placeholder.com/50x50?text=EM" alt="User avatar for Emily M.">
+                    <div class="stars">★★★★★</div>
+                    <p>"The deals are real; saved me time and money." - Emily M.</p>
+                </div>
+            </div>
+            <div>Rated 4.8/5 on Trustpilot | 4.7/5 on G2</div>
+            <p class="disclosure">Affiliate Disclosure: We may earn commissions from links on this site, at no extra cost to you.</p>
+        </div>
+    </section>
+    <aside id="newsletter-floating">
+        <h2>Get Our Free AI Tool Comparison Guide</h2>
+        <p>Sign up for updates on the latest AI tools and exclusive deals.</p>
+        <form aria-label="Newsletter sign-up form">
+            <input type="text" placeholder="Your Name" required aria-label="Name">
+            <input type="email" placeholder="Your Email" required aria-label="Email">
+            <button type="submit">Get Free Guide Instantly</button>
+        </form>
+        <p class="privacy">We respect your privacy. Unsubscribe anytime.</p>
+    </aside>
+    <footer>
+        <div class="container">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+            <div class="social">
+                <a href="#"><i class="fab fa-x-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p>© 2025 AI Genius. All rights reserved. <a href="#newsletter-floating" class="cta">Join Our Affiliate Community Now</a></p>
+        </div>
+    </footer>
+</body>
+</html>
