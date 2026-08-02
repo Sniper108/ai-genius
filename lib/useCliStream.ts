@@ -20,11 +20,18 @@ const nextId = () => `c${Date.now()}_${uid++}`;
  * The bridge emits SSE `event: <name>` frames with JSON payloads of shape
  * { kind: "text" | "error" | "done", ... }.
  */
-export function useCliStream(endpoint: string, storageKey?: string, agentName = "Agent") {
+export function useCliStream(
+  endpoint: string,
+  storageKey?: string,
+  agentName = "Agent",
+  extraBody?: () => Record<string, unknown>,
+) {
   const [messages, setMessages] = useState<CliMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const extraRef = useRef(extraBody);
+  extraRef.current = extraBody;
 
   // Restore persisted history once, on mount.
   useEffect(() => {
@@ -79,7 +86,7 @@ export function useCliStream(endpoint: string, storageKey?: string, agentName = 
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt, ...(extraRef.current ? extraRef.current() : {}) }),
           signal: controller.signal,
         });
         if (!res.body) throw new Error("No response stream");

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FolderOpen, Check, X, Save, BookText } from "lucide-react";
+import { FolderOpen, Check, X, Save, BookText, Route } from "lucide-react";
 import { getVaultConfig, setVaultConfig, verifyVault } from "@/lib/vault";
+import { getOmniModel, setOmniModel, KIMI_FREE } from "@/lib/omniroute";
 
 export function SettingsPanel() {
   const [path, setPath] = useState("");
@@ -11,11 +12,13 @@ export function SettingsPanel() {
   const [status, setStatus] = useState<null | { exists: boolean; folder: string | null }>(null);
   const [saved, setSaved] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [omniModel, setOmniModelInput] = useState("auto");
 
   useEffect(() => {
     const cfg = getVaultConfig();
     setPath(cfg.path);
     setEnabled(cfg.enabled);
+    setOmniModelInput(getOmniModel());
   }, []);
 
   const verify = async (p: string) => {
@@ -27,6 +30,7 @@ export function SettingsPanel() {
 
   const save = async () => {
     setVaultConfig({ path: path.trim(), enabled });
+    setOmniModel(omniModel);
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
     verify(path);
@@ -114,6 +118,42 @@ export function SettingsPanel() {
             />
           </button>
         </label>
+
+        {/* OmniRoute model */}
+        <div className="mt-6 border-t border-white/10 pt-6">
+          <h2 className="flex items-center gap-2 text-sm font-bold">
+            <Route size={16} style={{ color: "#2dd4bf" }} /> OmniRoute model
+          </h2>
+          <p className="mt-1 text-sm text-white/45">
+            Which model the OmniRoute agent asks for. Use{" "}
+            <span className="mono text-white/60">auto</span> to let OmniRoute choose, or pin a
+            specific free model like Kimi.
+          </p>
+          <div className="mt-3 flex items-center gap-2">
+            <input
+              value={omniModel}
+              onChange={(e) => setOmniModelInput(e.target.value)}
+              placeholder="auto"
+              className="mono flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none"
+            />
+            <button
+              onClick={() => setOmniModelInput(KIMI_FREE)}
+              className="shrink-0 rounded-xl border border-teal-400/40 bg-teal-400/10 px-3 py-2.5 text-xs font-medium text-teal-300 transition-all hover:bg-teal-400/20"
+            >
+              Use Kimi (free)
+            </button>
+            <button
+              onClick={() => setOmniModelInput("auto")}
+              className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-medium text-white/60 transition-all hover:text-white"
+            >
+              Auto
+            </button>
+          </div>
+          <p className="mono mt-2 text-[11px] text-white/30">
+            Kimi needs to be reachable through a provider you&apos;ve connected in OmniRoute (e.g.
+            OpenRouter&apos;s {KIMI_FREE}).
+          </p>
+        </div>
 
         <button
           onClick={save}

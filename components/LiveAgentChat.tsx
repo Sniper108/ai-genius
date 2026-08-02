@@ -1,19 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { RotateCcw, Radio } from "lucide-react";
 import type { AgentDef, AgentStatus } from "@/lib/types";
 import { useCliStream } from "@/lib/useCliStream";
+import { getOmniModel } from "@/lib/omniroute";
 import { ChatShell } from "./chat/ChatShell";
 import { MessageRow, TypingDots } from "./chat/MessageRow";
 import { AgentAvatar } from "./Avatar";
 
 /** A real, live chat for agents backed by a local CLI bridge (e.g. Hermes). */
 export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: AgentStatus }) {
-  const { messages, busy, send, stop, reset } = useCliStream(agent.bridge!, agent.id, agent.name);
+  const isOmni = agent.id === "omniroute";
+  const { messages, busy, send, stop, reset } = useCliStream(
+    agent.bridge!,
+    agent.id,
+    agent.name,
+    isOmni ? () => ({ model: getOmniModel() }) : undefined,
+  );
   const [input, setInput] = useState("");
+  const [omniModel, setOmniModelState] = useState("auto");
+
+  useEffect(() => {
+    if (isOmni) setOmniModelState(getOmniModel());
+  }, [isOmni, messages.length]);
 
   const submit = () => {
     if (!input.trim() || busy) return;
@@ -53,7 +65,18 @@ export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: Agen
       onStop={stop}
       busy={busy}
       placeholder={`Message ${agent.name}…  (Enter to send)`}
-      footerNote={<>Live · {agent.bridgeNote ?? `streaming from your local ${agent.name}`}</>}
+      footerNote={
+        isOmni ? (
+          <>
+            Live · model <span className="text-white/45">{omniModel}</span> · change it in{" "}
+            <Link href="/settings" className="text-white/45 underline hover:text-white/70">
+              Settings
+            </Link>
+          </>
+        ) : (
+          <>Live · {agent.bridgeNote ?? `streaming from your local ${agent.name}`}</>
+        )
+      }
     >
       {messages.length === 0 ? (
         <EmptyState agent={agent} onPick={(s) => send(s)} />
