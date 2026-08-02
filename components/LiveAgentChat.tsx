@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Radio } from "lucide-react";
 import type { AgentDef, AgentStatus } from "@/lib/types";
 import { useCliStream } from "@/lib/useCliStream";
 import { ChatShell } from "./chat/ChatShell";
@@ -21,12 +22,23 @@ export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: Agen
   };
 
   const headerRight = (
-    <button
-      onClick={reset}
-      className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white/50 transition-all hover:text-white"
-    >
-      <RotateCcw size={13} /> New
-    </button>
+    <>
+      {agent.id === "hermes" && (
+        <Link
+          href="/gateway"
+          className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all"
+          style={{ borderColor: `${agent.accent}50`, color: agent.accent }}
+        >
+          <Radio size={13} /> Gateway
+        </Link>
+      )}
+      <button
+        onClick={reset}
+        className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white/50 transition-all hover:text-white"
+      >
+        <RotateCcw size={13} /> New
+      </button>
+    </>
   );
 
   return (
