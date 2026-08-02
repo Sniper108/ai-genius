@@ -51,11 +51,11 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link
-          href="/claude"
+          href="/agents/claude"
           className="relative flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-electric to-cyan px-5 py-3 text-sm font-semibold text-white shadow-glow shadow-electric/40 transition-transform hover:scale-105 active:scale-95"
         >
           <Terminal size={16} />
-          Launch Claude Console
+          Chat with Claude
         </Link>
       </motion.div>
 

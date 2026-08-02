@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import type { AgentDef, AgentStatus } from "@/lib/types";
-import { Icon } from "./Icon";
+import { AgentAvatar } from "./Avatar";
 import { StatusDot } from "./StatusDot";
 
 export function AgentCard({
@@ -16,7 +16,7 @@ export function AgentCard({
   status: AgentStatus;
   index: number;
 }) {
-  const href = agent.kind === "claude" ? "/claude" : `/agents/${agent.id}`;
+  const href = `/agents/${agent.id}`;
 
   return (
     <motion.div
@@ -36,11 +36,8 @@ export function AgentCard({
         />
 
         <div className="relative flex items-start justify-between">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 transition-transform duration-300 group-hover:scale-110"
-            style={{ backgroundColor: `${agent.accent}20`, boxShadow: `0 0 24px -6px ${agent.accent}` }}
-          >
-            <Icon name={agent.icon} size={22} className="text-white" />
+          <div className="transition-transform duration-300 group-hover:scale-110">
+            <AgentAvatar agent={agent} size={48} glow />
           </div>
           <StatusDot status={status} showLabel />
         </div>
@@ -66,7 +63,7 @@ export function AgentCard({
         </div>
 
         <div className="relative mt-4 flex items-center gap-1 text-sm font-medium text-white/50 transition-colors group-hover:text-white">
-          <span style={{ color: agent.accent }}>Open console</span>
+          <span style={{ color: agent.accent }}>Open chat</span>
           <ArrowUpRight
             size={15}
             className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"

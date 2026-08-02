@@ -11,6 +11,8 @@ export interface AgentDef {
   kind: AgentKind;
   /** Tailwind-friendly hex accent used for glows and gradients. */
   accent: string;
+  /** Two-stop gradient [from, to] used for the agent's avatar/logo. */
+  gradient: [string, string];
   /** lucide-react icon name. */
   icon: string;
   /** Short capability blurb list shown on the agent bay. */

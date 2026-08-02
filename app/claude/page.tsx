@@ -1,9 +1,6 @@
-import { ClaudeConsole } from "@/components/ClaudeConsole";
+import { redirect } from "next/navigation";
 
-export default function ClaudePage() {
-  return (
-    <div className="mx-auto max-w-4xl px-5 py-4 sm:px-8">
-      <ClaudeConsole />
-    </div>
-  );
+// Claude now lives alongside the rest of the fleet as a chat page.
+export default function ClaudeRedirect() {
+  redirect("/agents/claude");
 }

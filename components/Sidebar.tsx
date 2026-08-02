@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { LayoutDashboard, Zap } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
-import { Icon } from "./Icon";
+import { AgentAvatar } from "./Avatar";
 import { StatusDot } from "./StatusDot";
 import { useFleetStatus } from "@/lib/useFleetStatus";
 
@@ -12,107 +13,121 @@ export function Sidebar() {
   const pathname = usePathname();
   const statuses = useFleetStatus();
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
-
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[248px] flex-col border-r border-white/10 bg-black/40 backdrop-blur-2xl md:flex">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[260px] flex-col border-r border-white/[0.06] bg-[#0a0b12]/80 backdrop-blur-2xl md:flex">
       {/* Brand */}
-      <Link href="/" className="group flex items-center gap-3 px-6 py-6">
-        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-electric to-cyan shadow-glow shadow-electric/50">
-          <Icon name="Zap" size={20} className="text-white" />
-          <span className="absolute inset-0 animate-pulse-ring rounded-xl bg-electric/40" />
+      <Link href="/" className="flex items-center gap-3 px-5 py-5">
+        <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-electric to-cyan">
+          <Zap size={18} className="text-white" />
         </div>
         <div className="leading-tight">
-          <div className="text-lg font-bold tracking-tight text-gradient">NEXUS</div>
-          <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+          <div className="text-[15px] font-bold tracking-tight">NEXUS</div>
+          <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/35">
             Mission Control
           </div>
         </div>
       </Link>
 
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
-        <NavItem href="/" icon="LayoutDashboard" label="Mission Control" active={isActive("/")} />
-        <NavItem href="/claude" icon="Terminal" label="Claude Console" active={isActive("/claude")} />
+      {/* Dashboard link */}
+      <div className="px-3">
+        <NavItem
+          href="/"
+          active={pathname === "/"}
+          icon={<LayoutDashboard size={17} />}
+          label="Mission Control"
+        />
+      </div>
 
-        <div className="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-          Agent Fleet
-        </div>
-
+      {/* Agents list — the "contacts" of the chat app */}
+      <div className="mt-5 mb-2 px-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+        Agents
+      </div>
+      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-3">
         {AGENTS.map((agent) => {
-          const href = agent.kind === "claude" ? "/claude" : `/agents/${agent.id}`;
+          const href = `/agents/${agent.id}`;
+          const active = pathname === href;
           const status = statuses[agent.id] ?? agent.defaultStatus;
           return (
             <Link
               key={agent.id}
               href={href}
-              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all ${
-                isActive(href) && agent.kind !== "claude"
-                  ? "bg-white/[0.06] text-white"
-                  : "text-white/60 hover:bg-white/[0.04] hover:text-white"
+              className={`group relative flex items-center gap-3 rounded-xl px-2.5 py-2 transition-colors ${
+                active ? "text-white" : "text-white/70 hover:text-white"
               }`}
             >
-              <span
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10"
-                style={{ backgroundColor: `${agent.accent}18` }}
-              >
-                <Icon name={agent.icon} size={15} className="text-white" />
+              {active && (
+                <motion.span
+                  layoutId="agent-active"
+                  className="absolute inset-0 rounded-xl border border-white/10 bg-white/[0.06]"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative">
+                <AgentAvatar agent={agent} size={36} />
               </span>
-              <span className="flex-1 font-medium">{agent.name}</span>
-              <StatusDot status={status} />
+              <span className="relative min-w-0 flex-1">
+                <span className="flex items-center gap-1.5">
+                  <span className="truncate text-sm font-medium">{agent.name}</span>
+                  {agent.kind === "claude" && (
+                    <span
+                      className="rounded px-1 py-px text-[8px] font-bold"
+                      style={{ backgroundColor: `${agent.accent}22`, color: agent.accent }}
+                    >
+                      LIVE
+                    </span>
+                  )}
+                </span>
+                <span className="block truncate text-[11px] text-white/35">{agent.tagline}</span>
+              </span>
+              <span className="relative">
+                <StatusDot status={status} />
+              </span>
             </Link>
           );
         })}
       </nav>
 
-      <SidebarFooter />
+      {/* Footer */}
+      <div className="border-t border-white/[0.06] px-5 py-3.5">
+        <div className="flex items-center gap-2 text-xs text-white/40">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-lime" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-lime" />
+          </span>
+          Bridge connected · localhost
+        </div>
+      </div>
     </aside>
   );
 }
 
 function NavItem({
   href,
+  active,
   icon,
   label,
-  active,
 }: {
   href: string;
-  icon: string;
-  label: string;
   active: boolean;
+  icon: React.ReactNode;
+  label: string;
 }) {
   return (
     <Link
       href={href}
-      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-        active ? "text-white" : "text-white/60 hover:text-white"
+      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+        active ? "text-white" : "text-white/70 hover:text-white"
       }`}
     >
       {active && (
         <motion.span
-          layoutId="nav-active"
+          layoutId="agent-active"
           className="absolute inset-0 rounded-xl border border-white/10 bg-white/[0.06]"
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       )}
-      <span className="relative flex h-8 w-8 items-center justify-center">
-        <Icon name={icon} size={17} />
-      </span>
+      <span className="relative flex h-9 w-9 items-center justify-center">{icon}</span>
       <span className="relative">{label}</span>
     </Link>
-  );
-}
-
-function SidebarFooter() {
-  return (
-    <div className="border-t border-white/10 px-5 py-4">
-      <div className="flex items-center gap-2 text-xs text-white/40">
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-lime" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-lime" />
-        </span>
-        Bridge connected · localhost
-      </div>
-    </div>
   );
 }

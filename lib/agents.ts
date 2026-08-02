@@ -11,6 +11,7 @@ export const AGENTS: AgentDef[] = [
     tagline: "Prime intelligence · Claude Code CLI bridge",
     kind: "claude",
     accent: "#ff7a45",
+    gradient: ["#ff8a4c", "#ff5f6d"],
     icon: "Sparkles",
     capabilities: [
       "Full Claude Code CLI access",
@@ -26,6 +27,7 @@ export const AGENTS: AgentDef[] = [
     tagline: "Autonomous web operator",
     kind: "external",
     accent: "#22d3ee",
+    gradient: ["#22d3ee", "#3b82f6"],
     icon: "Bot",
     capabilities: [
       "Browser automation",
@@ -42,6 +44,7 @@ export const AGENTS: AgentDef[] = [
     tagline: "Comms & messaging courier",
     kind: "external",
     accent: "#a3e635",
+    gradient: ["#a3e635", "#22c55e"],
     icon: "Send",
     capabilities: [
       "Email & inbox triage",
@@ -58,6 +61,7 @@ export const AGENTS: AgentDef[] = [
     tagline: "Research & knowledge miner",
     kind: "external",
     accent: "#7c5cff",
+    gradient: ["#7c5cff", "#c084fc"],
     icon: "Telescope",
     capabilities: [
       "Deep web research",

@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuroraBackground />
         <div className="relative z-10 flex min-h-screen">
           <Sidebar />
-          <main className="flex-1 md:ml-[248px]">{children}</main>
+          <main className="flex-1 md:ml-[260px]">{children}</main>
         </div>
       </body>
     </html>
