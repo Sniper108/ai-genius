@@ -112,24 +112,26 @@ export async function POST(req: NextRequest) {
     return new Response("Missing prompt", { status: 400 });
   }
 
-  const args = [
-    "-p",
-    body.prompt,
-    "--output-format",
-    "stream-json",
-    "--verbose",
-  ];
+  // The prompt is fed over stdin (not as a CLI arg) so it never needs shell
+  // quoting/escaping — the only things on the command line are safe flags.
+  const args = ["-p", "--output-format", "stream-json", "--verbose"];
   if (body.sessionId) args.push("--resume", body.sessionId);
   if (body.model) args.push("--model", body.model);
   if (body.yolo) args.push("--dangerously-skip-permissions");
+
+  // On Windows the `claude` binary is a `.cmd` shim, which can only be launched
+  // through a shell; on macOS/Linux we spawn the executable directly.
+  const isWindows = process.platform === "win32";
+  const command = isWindows ? "claude.cmd" : "claude";
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
       let child: ReturnType<typeof spawn>;
       try {
-        child = spawn("claude", args, {
+        child = spawn(command, args, {
           cwd: body.cwd || process.cwd(),
           env: process.env,
+          shell: isWindows,
         });
       } catch (err: any) {
         controller.enqueue(
@@ -138,6 +140,17 @@ export async function POST(req: NextRequest) {
         controller.enqueue(sse("claude", { kind: "done" }));
         controller.close();
         return;
+      }
+
+      // Feed the prompt to the CLI over stdin, then close it so Claude runs.
+      try {
+        child.stdin?.on("error", () => {
+          /* ignore EPIPE if the process exits before we finish writing */
+        });
+        child.stdin?.write(body.prompt);
+        child.stdin?.end();
+      } catch {
+        /* stdin unavailable — the error handlers below will surface it */
       }
 
       let buffer = "";
