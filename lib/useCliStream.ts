@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
 
 export interface CliMessage {
   id: string;
@@ -18,16 +19,33 @@ const nextId = () => `c${Date.now()}_${uid++}`;
  * The bridge emits SSE `event: <name>` frames with JSON payloads of shape
  * { kind: "text" | "error" | "done", ... }.
  */
-export function useCliStream(endpoint: string) {
+export function useCliStream(endpoint: string, storageKey?: string) {
   const [messages, setMessages] = useState<CliMessage[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Restore persisted history once, on mount.
+  useEffect(() => {
+    const h = readHistory<{ messages: CliMessage[] }>(storageKey);
+    if (h?.messages?.length) {
+      const restored = h.messages
+        .map((m) => ({ ...m, streaming: false }))
+        .filter((m) => m.role === "user" || m.text.trim().length > 0);
+      setMessages(restored);
+    }
+    setLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
+
+  useAutoSave(storageKey, { messages }, loaded);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
     setMessages([]);
     setBusy(false);
-  }, []);
+    clearHistory(storageKey);
+  }, [storageKey]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();

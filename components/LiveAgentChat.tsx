@@ -12,7 +12,7 @@ import { AgentAvatar } from "./Avatar";
 
 /** A real, live chat for agents backed by a local CLI bridge (e.g. Hermes). */
 export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: AgentStatus }) {
-  const { messages, busy, send, stop, reset } = useCliStream(agent.bridge!);
+  const { messages, busy, send, stop, reset } = useCliStream(agent.bridge!, agent.id);
   const [input, setInput] = useState("");
 
   const submit = () => {

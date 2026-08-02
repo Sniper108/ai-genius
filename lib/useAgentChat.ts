@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AgentDef } from "./types";
+import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
 
 export interface AgentMessage {
   id: string;
@@ -19,15 +20,33 @@ const nextId = () => `am${Date.now()}_${uid++}`;
  * in the UI). Swap `respond` for a real fetch to `agent.endpoint` to go live.
  */
 export function useAgentChat(agent: AgentDef) {
+  const storageKey = agent.id;
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Restore persisted history once, on mount.
+  useEffect(() => {
+    const h = readHistory<{ messages: AgentMessage[] }>(storageKey);
+    if (h?.messages?.length) {
+      const restored = h.messages
+        .map((m) => ({ ...m, typing: false }))
+        .filter((m) => m.role === "user" || m.text.trim().length > 0);
+      setMessages(restored);
+    }
+    setLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
+
+  useAutoSave(storageKey, { messages }, loaded);
 
   const reset = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
     setMessages([]);
     setBusy(false);
-  }, []);
+    clearHistory(storageKey);
+  }, [storageKey]);
 
   const send = useCallback(
     (text: string) => {

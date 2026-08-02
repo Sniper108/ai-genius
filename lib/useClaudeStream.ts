@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClaudeStreamEvent } from "./types";
+import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
 
 export interface ClaudeMessage {
   id: string;
@@ -29,18 +30,36 @@ interface SendOptions {
 let uid = 0;
 const nextId = () => `m${Date.now()}_${uid++}`;
 
-export function useClaudeStream() {
+export function useClaudeStream(storageKey?: string) {
   const [messages, setMessages] = useState<ClaudeMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [sessionId, setSessionId] = useState<string | undefined>();
+  const [loaded, setLoaded] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Restore persisted history once, on mount.
+  useEffect(() => {
+    const h = readHistory<{ messages: ClaudeMessage[]; sessionId?: string }>(storageKey);
+    if (h?.messages?.length) {
+      const restored = h.messages
+        .map((m) => ({ ...m, streaming: false }))
+        .filter((m) => m.role === "user" || m.blocks.length > 0);
+      setMessages(restored);
+      if (h.sessionId) setSessionId(h.sessionId);
+    }
+    setLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
+
+  useAutoSave(storageKey, { messages, sessionId }, loaded);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
     setMessages([]);
     setSessionId(undefined);
     setBusy(false);
-  }, []);
+    clearHistory(storageKey);
+  }, [storageKey]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
