@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FolderOpen, Check, X, Save, BookText, Route } from "lucide-react";
 import { getVaultConfig, setVaultConfig, verifyVault } from "@/lib/vault";
-import { getOmniModel, setOmniModel, KIMI_FREE } from "@/lib/omniroute";
+import { getOmniModel, setOmniModel, KIMI_MODEL, FREE_CODING } from "@/lib/omniroute";
 
 export function SettingsPanel() {
   const [path, setPath] = useState("");
@@ -137,10 +137,16 @@ export function SettingsPanel() {
               className="mono flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none"
             />
             <button
-              onClick={() => setOmniModelInput(KIMI_FREE)}
+              onClick={() => setOmniModelInput(FREE_CODING)}
+              className="shrink-0 rounded-xl border border-lime/40 bg-lime/10 px-3 py-2.5 text-xs font-medium text-lime transition-all hover:bg-lime/20"
+            >
+              Free coding
+            </button>
+            <button
+              onClick={() => setOmniModelInput(KIMI_MODEL)}
               className="shrink-0 rounded-xl border border-teal-400/40 bg-teal-400/10 px-3 py-2.5 text-xs font-medium text-teal-300 transition-all hover:bg-teal-400/20"
             >
-              Use Kimi (free)
+              Use Kimi
             </button>
             <button
               onClick={() => setOmniModelInput("auto")}
@@ -149,9 +155,10 @@ export function SettingsPanel() {
               Auto
             </button>
           </div>
-          <p className="mono mt-2 text-[11px] text-white/30">
-            Kimi needs to be reachable through a provider you&apos;ve connected in OmniRoute (e.g.
-            OpenRouter&apos;s {KIMI_FREE}).
+          <p className="mono mt-2 text-[11px] leading-relaxed text-white/30">
+            <span className="text-lime/80">Free coding</span> = {FREE_CODING} (only free models).{" "}
+            <span className="text-teal-300/80">Use Kimi</span> = {KIMI_MODEL}. Paste any id from
+            localhost:20128/v1/models to override.
           </p>
         </div>
 

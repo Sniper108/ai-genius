@@ -2,8 +2,10 @@
 
 const KEY = "nexus.omniroute.model";
 
-/** The free Kimi model id on OpenRouter — a sensible one-click default. */
-export const KIMI_FREE = "moonshotai/kimi-k2:free";
+/** Kimi in OmniRoute's own catalog (Kimi K2.7 Code). */
+export const KIMI_MODEL = "aug/kimi-k2.7";
+/** OmniRoute's free-only coding auto-router — guaranteed free. */
+export const FREE_CODING = "auto/coding:free";
 
 export function getOmniModel(): string {
   if (typeof window === "undefined") return "auto";
