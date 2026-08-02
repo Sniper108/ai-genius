@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Zap } from "lucide-react";
+import { LayoutDashboard, Zap, NotebookPen, Settings2 } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { AgentAvatar } from "./Avatar";
 import { StatusDot } from "./StatusDot";
@@ -28,13 +28,25 @@ export function Sidebar() {
         </div>
       </Link>
 
-      {/* Dashboard link */}
+      {/* Primary links */}
       <div className="px-3">
         <NavItem
           href="/"
           active={pathname === "/"}
           icon={<LayoutDashboard size={17} />}
           label="Mission Control"
+        />
+        <NavItem
+          href="/journal"
+          active={pathname === "/journal"}
+          icon={<NotebookPen size={17} />}
+          label="Journal"
+        />
+        <NavItem
+          href="/settings"
+          active={pathname === "/settings"}
+          icon={<Settings2 size={17} />}
+          label="Settings"
         />
       </div>
 

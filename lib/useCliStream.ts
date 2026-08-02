@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
+import { saveToVault } from "./vault";
 
 export interface CliMessage {
   id: string;
@@ -19,7 +20,7 @@ const nextId = () => `c${Date.now()}_${uid++}`;
  * The bridge emits SSE `event: <name>` frames with JSON payloads of shape
  * { kind: "text" | "error" | "done", ... }.
  */
-export function useCliStream(endpoint: string, storageKey?: string) {
+export function useCliStream(endpoint: string, storageKey?: string, agentName = "Agent") {
   const [messages, setMessages] = useState<CliMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -69,6 +70,8 @@ export function useCliStream(endpoint: string, storageKey?: string) {
       const controller = new AbortController();
       abortRef.current = controller;
 
+      let assistantLog = "";
+
       const patch = (fn: (m: CliMessage) => CliMessage) =>
         setMessages((prev) => prev.map((m) => (m.id === assistantId ? fn(m) : m)));
 
@@ -101,6 +104,7 @@ export function useCliStream(endpoint: string, storageKey?: string) {
               continue;
             }
             if (evt.kind === "text") {
+              assistantLog += evt.text;
               patch((m) => ({ ...m, text: m.text + evt.text }));
             } else if (evt.kind === "error") {
               patch((m) => ({
@@ -122,9 +126,12 @@ export function useCliStream(endpoint: string, storageKey?: string) {
       } finally {
         patch((m) => ({ ...m, streaming: false }));
         setBusy(false);
+        if (assistantLog.trim()) {
+          void saveToVault(`💬 ${agentName}`, `**You:** ${prompt}\n\n**${agentName}:** ${assistantLog.trim()}`);
+        }
       }
     },
-    [busy, endpoint],
+    [busy, endpoint, agentName],
   );
 
   return { messages, busy, send, stop, reset };

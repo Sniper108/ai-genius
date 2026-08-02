@@ -18,7 +18,7 @@ const SUGGESTIONS = [
 ];
 
 export function ClaudeChat({ agent, status }: { agent: AgentDef; status: AgentStatus }) {
-  const { messages, busy, sessionId, send, stop, reset } = useClaudeStream(agent.id);
+  const { messages, busy, sessionId, send, stop, reset } = useClaudeStream(agent.id, agent.name);
   const [input, setInput] = useState("");
   const [yolo, setYolo] = useState(false);
 

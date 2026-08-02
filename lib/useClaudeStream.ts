@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClaudeStreamEvent } from "./types";
 import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
+import { saveToVault } from "./vault";
 
 export interface ClaudeMessage {
   id: string;
@@ -30,7 +31,7 @@ interface SendOptions {
 let uid = 0;
 const nextId = () => `m${Date.now()}_${uid++}`;
 
-export function useClaudeStream(storageKey?: string) {
+export function useClaudeStream(storageKey?: string, agentName = "Claude") {
   const [messages, setMessages] = useState<ClaudeMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const [sessionId, setSessionId] = useState<string | undefined>();
@@ -90,6 +91,8 @@ export function useClaudeStream(storageKey?: string) {
 
       const controller = new AbortController();
       abortRef.current = controller;
+
+      let assistantLog = ""; // visible reply text, accumulated for the vault log
 
       const patch = (fn: (m: ClaudeMessage) => ClaudeMessage) =>
         setMessages((prev) => prev.map((m) => (m.id === assistantId ? fn(m) : m)));
@@ -157,6 +160,10 @@ export function useClaudeStream(storageKey?: string) {
       } finally {
         patch((m) => ({ ...m, streaming: false }));
         setBusy(false);
+        // Auto-log the exchange to the Obsidian vault (fire-and-forget).
+        if (assistantLog.trim()) {
+          void saveToVault(`💬 ${agentName}`, `**You:** ${prompt}\n\n**${agentName}:** ${assistantLog.trim()}`);
+        }
       }
 
       function handleEvent(evt: ClaudeStreamEvent) {
@@ -165,6 +172,7 @@ export function useClaudeStream(storageKey?: string) {
             setSessionId(evt.sessionId);
             break;
           case "text":
+            assistantLog += evt.text;
             appendText(evt.text, "text");
             break;
           case "thinking":
@@ -190,6 +198,7 @@ export function useClaudeStream(storageKey?: string) {
             break;
           case "result":
             if (evt.sessionId) setSessionId(evt.sessionId);
+            if (!assistantLog.trim() && evt.text) assistantLog = evt.text;
             patch((m) => ({
               ...m,
               meta: {
@@ -217,7 +226,7 @@ export function useClaudeStream(storageKey?: string) {
         }
       }
     },
-    [busy, sessionId],
+    [busy, sessionId, agentName],
   );
 
   return { messages, busy, sessionId, send, stop, reset };
