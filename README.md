@@ -46,6 +46,18 @@ and act on your commands — exactly as it would in your terminal.
 
 ## 🚀 Getting started
 
+### Windows one-click launcher
+
+After the first-time setup below, you can just **double-click `start.bat`** in
+the project folder. It installs dependencies if needed, starts the server, and
+opens your browser automatically once it's ready. Keep that window open while
+you use the dashboard; press `Ctrl+C` in it to stop.
+
+> Tip: right-click `start.bat` → *Show more options* → *Send to* → *Desktop
+> (create shortcut)* to launch NEXUS from your desktop.
+
+### Manual setup
+
 ```bash
 # 1. Install dependencies
 npm install
