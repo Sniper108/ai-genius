@@ -5,6 +5,7 @@ import { ArrowUp, Square } from "lucide-react";
 import type { AgentDef, AgentStatus } from "@/lib/types";
 import { AgentAvatar } from "@/components/Avatar";
 import { StatusDot } from "@/components/StatusDot";
+import { MicButton } from "@/components/MicButton";
 
 export function ChatShell({
   agent,
@@ -106,6 +107,7 @@ export function ChatShell({
               placeholder={placeholder ?? `Message ${agent.name}…`}
               className="max-h-[200px] flex-1 resize-none bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none disabled:opacity-50"
             />
+            <MicButton value={input} onChange={setInput} accent={agent.accent} disabled={disabled} />
             {busy && onStop ? (
               <button
                 onClick={onStop}
