@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Zap, NotebookPen, Settings2 } from "lucide-react";
+import { LayoutDashboard, Zap, NotebookPen, Settings2, Paperclip } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { AgentAvatar } from "./Avatar";
 import { StatusDot } from "./StatusDot";
@@ -41,6 +41,12 @@ export function Sidebar() {
           active={pathname === "/journal"}
           icon={<NotebookPen size={17} />}
           label="Journal"
+        />
+        <NavItem
+          href="/paperclip"
+          active={pathname === "/paperclip"}
+          icon={<Paperclip size={17} />}
+          label="Paperclip"
         />
         <NavItem
           href="/settings"
