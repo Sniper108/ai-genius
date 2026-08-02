@@ -1,0 +1,93 @@
+"use client";
+
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { RotateCcw } from "lucide-react";
+import type { AgentDef, AgentStatus } from "@/lib/types";
+import { useCliStream } from "@/lib/useCliStream";
+import { ChatShell } from "./chat/ChatShell";
+import { MessageRow, TypingDots } from "./chat/MessageRow";
+import { AgentAvatar } from "./Avatar";
+
+/** A real, live chat for agents backed by a local CLI bridge (e.g. Hermes). */
+export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: AgentStatus }) {
+  const { messages, busy, send, stop, reset } = useCliStream(agent.bridge!);
+  const [input, setInput] = useState("");
+
+  const submit = () => {
+    if (!input.trim() || busy) return;
+    send(input);
+    setInput("");
+  };
+
+  const headerRight = (
+    <button
+      onClick={reset}
+      className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white/50 transition-all hover:text-white"
+    >
+      <RotateCcw size={13} /> New
+    </button>
+  );
+
+  return (
+    <ChatShell
+      agent={agent}
+      status={status}
+      headerRight={headerRight}
+      scrollSignal={messages.reduce((n, m) => n + m.text.length, messages.length)}
+      input={input}
+      setInput={setInput}
+      onSend={submit}
+      onStop={stop}
+      busy={busy}
+      placeholder={`Message ${agent.name}…  (Enter to send)`}
+      footerNote={
+        <>
+          Live · running <span className="text-white/40">hermes -z</span> on your machine · first
+          reply can take a few seconds
+        </>
+      }
+    >
+      {messages.length === 0 ? (
+        <EmptyState agent={agent} onPick={(s) => send(s)} />
+      ) : (
+        <AnimatePresence initial={false}>
+          {messages.map((m) => (
+            <MessageRow key={m.id} role={m.role} agent={agent} error={m.error}>
+              {m.role === "assistant" && m.streaming && !m.text ? (
+                <TypingDots color={agent.accent} />
+              ) : (
+                <p className="whitespace-pre-wrap break-words">{m.text}</p>
+              )}
+            </MessageRow>
+          ))}
+        </AnimatePresence>
+      )}
+    </ChatShell>
+  );
+}
+
+function EmptyState({ agent, onPick }: { agent: AgentDef; onPick: (s: string) => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-20 text-center"
+    >
+      <AgentAvatar agent={agent} size={72} glow />
+      <h3 className="mt-5 text-xl font-semibold">{agent.name}</h3>
+      <p className="mt-1 max-w-sm text-sm text-white/45">{agent.tagline}</p>
+      <div className="mt-6 grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
+        {agent.capabilities.slice(0, 4).map((s) => (
+          <button
+            key={s}
+            onClick={() => onPick(s)}
+            className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 text-left text-sm text-white/70 transition-all hover:border-white/15 hover:bg-white/[0.06]"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}

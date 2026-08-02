@@ -19,6 +19,12 @@ export interface AgentDef {
   capabilities: string[];
   /** Optional external endpoint this agent talks to (external kind only). */
   endpoint?: string;
+  /**
+   * If set, this agent is driven by a real local CLI bridge at this API path
+   * (e.g. "/api/hermes"). Bridged agents stream live replies instead of demo
+   * text.
+   */
+  bridge?: string;
   /** Default status if the agent can't self-report. */
   defaultStatus: AgentStatus;
 }

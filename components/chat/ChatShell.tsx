@@ -60,7 +60,7 @@ export function ChatShell({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="truncate text-[15px] font-semibold">{agent.name}</h1>
-              {agent.kind === "claude" ? (
+              {agent.kind === "claude" || agent.bridge ? (
                 <span
                   className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                   style={{ backgroundColor: `${agent.accent}22`, color: agent.accent }}

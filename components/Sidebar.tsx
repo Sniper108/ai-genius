@@ -68,7 +68,7 @@ export function Sidebar() {
               <span className="relative min-w-0 flex-1">
                 <span className="flex items-center gap-1.5">
                   <span className="truncate text-sm font-medium">{agent.name}</span>
-                  {agent.kind === "claude" && (
+                  {(agent.kind === "claude" || agent.bridge) && (
                     <span
                       className="rounded px-1 py-px text-[8px] font-bold"
                       style={{ backgroundColor: `${agent.accent}22`, color: agent.accent }}
