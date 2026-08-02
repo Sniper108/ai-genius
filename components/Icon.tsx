@@ -10,6 +10,7 @@ import {
   Activity,
   Cpu,
   Zap,
+  Route,
   Circle,
   type LucideIcon,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const MAP: Record<string, LucideIcon> = {
   Activity,
   Cpu,
   Zap,
+  Route,
   Circle,
 };
 

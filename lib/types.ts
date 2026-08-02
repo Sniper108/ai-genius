@@ -25,6 +25,8 @@ export interface AgentDef {
    * text.
    */
   bridge?: string;
+  /** Small note shown under the composer for bridged agents. */
+  bridgeNote?: string;
   /** Default status if the agent can't self-report. */
   defaultStatus: AgentStatus;
 }

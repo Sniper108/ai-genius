@@ -53,12 +53,7 @@ export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: Agen
       onStop={stop}
       busy={busy}
       placeholder={`Message ${agent.name}…  (Enter to send)`}
-      footerNote={
-        <>
-          Live · running <span className="text-white/40">hermes -z</span> on your machine · first
-          reply can take a few seconds
-        </>
-      }
+      footerNote={<>Live · {agent.bridgeNote ?? `streaming from your local ${agent.name}`}</>}
     >
       {messages.length === 0 ? (
         <EmptyState agent={agent} onPick={(s) => send(s)} />
