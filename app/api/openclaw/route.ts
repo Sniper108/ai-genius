@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 // OpenClaw needs an agent context (--agent/--to/--session-id). Override the
 // agent id with OPENCLAW_AGENT if your default agent is named differently.
-const AGENT_ID = process.env.OPENCLAW_AGENT || "default";
+const AGENT_ID = process.env.OPENCLAW_AGENT || "main";
 
 function sse(data: unknown): Uint8Array {
   return new TextEncoder().encode(`event: openclaw\ndata: ${JSON.stringify(data)}\n\n`);
