@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html,
+body {
+  background-color: #05060a;
+  color: #e7e9f2;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Custom scrollbar — thin and glowy */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 92, 255, 0.4) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(rgba(124, 92, 255, 0.5), rgba(34, 211, 238, 0.5));
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(rgba(124, 92, 255, 0.8), rgba(34, 211, 238, 0.8));
+}
+
+@layer components {
+  .glass {
+    @apply relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 20px 60px -30px rgba(0, 0, 0, 0.9);
+  }
+
+  .glass-hover {
+    @apply transition-all duration-300 hover:border-white/20 hover:bg-white/[0.05];
+  }
+
+  /* Animated gradient text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(120deg, #fff 10%, #a5b4fc 40%, #22d3ee 70%, #ff7a45 100%);
+    background-size: 200% auto;
+    animation: text-pan 6s linear infinite;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/70;
+  }
+}
+
+@keyframes text-pan {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Noise/grain overlay helper */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
