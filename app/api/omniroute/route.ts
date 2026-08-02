@@ -5,7 +5,9 @@ export const dynamic = "force-dynamic";
 
 // OmniRoute exposes an OpenAI-compatible gateway locally. Override with env if
 // you run it on a different host/port, or pin a specific model instead of auto.
-const BASE = process.env.OMNIROUTE_URL || "http://localhost:20128/v1";
+// Use 127.0.0.1 (not "localhost"): Node's fetch may resolve localhost to IPv6
+// (::1) while OmniRoute listens on IPv4, causing a false "couldn't reach".
+const BASE = process.env.OMNIROUTE_URL || "http://127.0.0.1:20128/v1";
 const MODEL = process.env.OMNIROUTE_MODEL || "auto";
 const KEY = process.env.OMNIROUTE_KEY || "omniroute";
 
