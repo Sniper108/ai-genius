@@ -16,6 +16,12 @@ function sse(data: unknown): Uint8Array {
 // eslint-disable-next-line no-control-regex
 const ANSI = /\x1b\[[0-9;?]*[ -/]*[@-~]/g;
 
+// OpenClaw prints internal diagnostics to stdout as bracketed, namespaced log
+// tags — e.g. "[agents/tool-policy] ...", "[agent/cli-backend] cli exec: ...".
+// They're noise in the chat, so we drop any line whose bracket tag contains a
+// slash (a real answer virtually never starts with "[word/word]").
+const LOG_LINE = /^\s*\[[\w.:-]+\/[\w.:-]+\]/;
+
 export async function POST(req: NextRequest) {
   let prompt = "";
   try {
@@ -49,6 +55,8 @@ export async function POST(req: NextRequest) {
 
       let stderr = "";
       let closed = false;
+      let buffer = "";
+      let sawContent = false;
       const safeClose = () => {
         if (closed) return;
         closed = true;
@@ -59,9 +67,20 @@ export async function POST(req: NextRequest) {
         }
       };
 
+      const emit = (line: string) => {
+        if (LOG_LINE.test(line)) return; // drop OpenClaw diagnostic noise
+        if (!sawContent && line.trim() === "") return; // skip leading blanks
+        sawContent = true;
+        controller.enqueue(sse({ kind: "text", text: line + "\n" }));
+      };
+
       child.stdout?.on("data", (chunk: Buffer) => {
-        const text = chunk.toString().replace(ANSI, "");
-        if (text) controller.enqueue(sse({ kind: "text", text }));
+        buffer += chunk.toString().replace(ANSI, "");
+        let idx: number;
+        while ((idx = buffer.indexOf("\n")) !== -1) {
+          emit(buffer.slice(0, idx));
+          buffer = buffer.slice(idx + 1);
+        }
       });
 
       child.stderr?.on("data", (chunk: Buffer) => {
@@ -79,6 +98,11 @@ export async function POST(req: NextRequest) {
       });
 
       child.on("close", (code) => {
+        // Flush the final line (no trailing newline) through the same filter.
+        if (buffer && !LOG_LINE.test(buffer) && buffer.trim() !== "") {
+          controller.enqueue(sse({ kind: "text", text: buffer }));
+        }
+        buffer = "";
         if (code !== 0 && stderr.trim()) {
           controller.enqueue(sse({ kind: "error", message: stderr.replace(ANSI, "").trim().slice(0, 4000) }));
         }
