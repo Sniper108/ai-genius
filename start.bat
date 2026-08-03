@@ -28,6 +28,12 @@ if errorlevel 1 (
   start "OmniRoute" cmd /k omniroute
 )
 
+REM --- Start Paperclip (AI company) in its own window ---
+REM Runs via npx, so no global install needed. First run downloads it, which
+REM can take a minute. Keep its window open once it's up.
+echo   [start] Paperclip -^> http://localhost:3100 ^(keep its window open^)
+start "Paperclip" cmd /k npx paperclipai onboard --yes
+
 REM --- First run: install dependencies if they're missing ---
 if not exist "node_modules" (
   echo.
