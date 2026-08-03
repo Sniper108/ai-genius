@@ -160,9 +160,11 @@ export function BoardView() {
           onChange={(e) => setAgent(e.target.value)}
           className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white/70 focus:outline-none"
         >
-          <option value="">Unassigned</option>
+          <option value="" className="bg-[#0d0d12] text-white">
+            Unassigned
+          </option>
           {AGENTS.map((a) => (
-            <option key={a.id} value={a.id}>
+            <option key={a.id} value={a.id} className="bg-[#0d0d12] text-white">
               {a.name}
             </option>
           ))}
