@@ -10,6 +10,7 @@ import { getOmniModel } from "@/lib/omniroute";
 import { ChatShell } from "./chat/ChatShell";
 import { MessageRow, TypingDots } from "./chat/MessageRow";
 import { AgentAvatar } from "./Avatar";
+import { buildPromptWithAttachments, type ChatAttachment } from "@/lib/attachments";
 
 /** A real, live chat for agents backed by a local CLI bridge (e.g. Hermes). */
 export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: AgentStatus }) {
@@ -27,9 +28,9 @@ export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: Agen
     if (isOmni) setOmniModelState(getOmniModel());
   }, [isOmni, messages.length]);
 
-  const submit = () => {
-    if (!input.trim() || busy) return;
-    send(input);
+  const submit = (attachments: ChatAttachment[] = []) => {
+    if ((!input.trim() && attachments.length === 0) || busy) return;
+    send(buildPromptWithAttachments(input, attachments));
     setInput("");
   };
 
@@ -64,6 +65,7 @@ export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: Agen
       onSend={submit}
       onStop={stop}
       busy={busy}
+      enableAttachments
       placeholder={`Message ${agent.name}…  (Enter to send)`}
       footerNote={
         isOmni ? (

@@ -29,11 +29,27 @@ export async function POST(req: NextRequest) {
     await mkdir(dir, { recursive: true });
     const safe = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`.slice(-120);
     const buf = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(dir, safe), buf);
+    const abs = path.join(dir, safe);
+    await writeFile(abs, buf);
+
+    // For text-like files, return the content so any agent (even ones without
+    // file tools) gets it inline as context.
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    const TEXTY = new Set([
+      "txt", "md", "csv", "tsv", "json", "log", "yml", "yaml", "html", "xml",
+      "js", "ts", "tsx", "py", "css", "sql",
+    ]);
+    let text: string | undefined;
+    if ((file.type.startsWith("text/") || TEXTY.has(ext)) && file.size < 300 * 1024) {
+      text = buf.toString("utf8");
+    }
+
     return Response.json({
       name: file.name,
       url: `/api/attachment/${encodeURIComponent(safe)}`,
       type: file.type || "application/octet-stream",
+      absPath: abs,
+      text,
     });
   } catch (err: any) {
     return Response.json({ error: err?.message ?? "Write failed" }, { status: 500 });

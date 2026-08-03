@@ -9,6 +9,7 @@ import { ChatShell } from "./chat/ChatShell";
 import { MessageRow, TypingDots } from "./chat/MessageRow";
 import { Collapsible } from "./chat/Collapsible";
 import { AgentAvatar } from "./Avatar";
+import { buildPromptWithAttachments, type ChatAttachment } from "@/lib/attachments";
 
 const SUGGESTIONS = [
   "Summarize what this repo does",
@@ -22,9 +23,9 @@ export function ClaudeChat({ agent, status }: { agent: AgentDef; status: AgentSt
   const [input, setInput] = useState("");
   const [yolo, setYolo] = useState(false);
 
-  const submit = () => {
-    if (!input.trim() || busy) return;
-    send(input, { yolo });
+  const submit = (attachments: ChatAttachment[] = []) => {
+    if ((!input.trim() && attachments.length === 0) || busy) return;
+    send(buildPromptWithAttachments(input, attachments), { yolo });
     setInput("");
   };
 
@@ -61,6 +62,7 @@ export function ClaudeChat({ agent, status }: { agent: AgentDef; status: AgentSt
       onSend={submit}
       onStop={stop}
       busy={busy}
+      enableAttachments
       placeholder="Message Claude…  (Enter to send · Shift+Enter for newline)"
       footerNote={
         <>
