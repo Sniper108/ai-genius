@@ -117,7 +117,16 @@ export async function POST(req: NextRequest) {
   const args = ["-p", "--output-format", "stream-json", "--verbose"];
   if (body.sessionId) args.push("--resume", body.sessionId);
   if (body.model) args.push("--model", body.model);
-  if (body.yolo) args.push("--dangerously-skip-permissions");
+  if (body.yolo) {
+    args.push("--dangerously-skip-permissions");
+  } else {
+    // In headless mode Claude can't answer a permission prompt, so any tool
+    // that isn't pre-approved is silently skipped — that's why it said "I
+    // don't have web search." Pre-approve the read-only research tools so it
+    // can actually browse the web and read files without a prompt. Anything
+    // that writes or runs commands still needs the YOLO toggle.
+    args.push("--allowedTools", "WebSearch,WebFetch,Read,Glob,Grep");
+  }
 
   // On Windows the `claude` binary is a `.cmd` shim, which can only be launched
   // through a shell; on macOS/Linux we spawn the executable directly.

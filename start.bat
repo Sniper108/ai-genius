@@ -17,6 +17,17 @@ if errorlevel 1 (
   exit /b 1
 )
 
+REM --- Start OmniRoute (free model gateway) in its own window ---
+REM Skips gracefully if it isn't installed. Your saved provider/API key is
+REM reused, so once it's up the OmniRoute agent works without extra steps.
+where omniroute >nul 2>nul
+if errorlevel 1 (
+  echo   [skip] OmniRoute not installed - install once with: npm install -g omniroute
+) else (
+  echo   [start] OmniRoute -^> http://localhost:20128 ^(keep its window open^)
+  start "OmniRoute" cmd /k omniroute
+)
+
 REM --- First run: install dependencies if they're missing ---
 if not exist "node_modules" (
   echo.
