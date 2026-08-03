@@ -10,6 +10,9 @@
 # production
 /build
 
+# user-uploaded attachments (kept local, never committed)
+/.nexus
+
 # misc
 .DS_Store
 *.pem

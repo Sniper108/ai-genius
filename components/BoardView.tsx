@@ -2,17 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, X, Paperclip } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { AgentAvatar } from "./Avatar";
 
 type Col = "todo" | "doing" | "done";
+interface Attachment {
+  name: string;
+  url: string;
+  type: string;
+}
 interface Card {
   id: string;
   title: string;
   agent?: string;
   col: Col;
   created: number;
+  attachments?: Attachment[];
 }
 
 const COLS: { key: Col; label: string; accent: string }[] = [
@@ -32,6 +38,9 @@ export function BoardView() {
   const [title, setTitle] = useState("");
   const [agent, setAgent] = useState<string>("");
   const saveT = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const uploadForRef = useRef<string | null>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -75,8 +84,55 @@ export function BoardView() {
 
   const remove = (id: string) => setCards((c) => c.filter((x) => x.id !== id));
 
+  // You pick the file each time — that file picker IS the permission gate;
+  // nothing is read from your computer unless you choose it here.
+  const pickFileFor = (id: string) => {
+    uploadForRef.current = id;
+    fileRef.current?.click();
+  };
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    const id = uploadForRef.current;
+    if (!file || !id) return;
+    setUploading(id);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) {
+        setCards((c) =>
+          c.map((card) =>
+            card.id === id ? { ...card, attachments: [...(card.attachments || []), data] } : card,
+          ),
+        );
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setUploading(null);
+      uploadForRef.current = null;
+    }
+  };
+
+  const removeAttachment = (cardId: string, url: string) =>
+    setCards((c) =>
+      c.map((card) =>
+        card.id === cardId ? { ...card, attachments: (card.attachments || []).filter((a) => a.url !== url) } : card,
+      ),
+    );
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8">
+      <input
+        ref={fileRef}
+        type="file"
+        onChange={onFile}
+        className="hidden"
+        accept="image/*,.pdf,.txt,.md,.csv,.json,.doc,.docx,.xls,.xlsx"
+      />
       <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Operations Board</h1>
@@ -161,6 +217,43 @@ export function BoardView() {
                             <X size={14} />
                           </button>
                         </div>
+
+                        {card.attachments && card.attachments.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {card.attachments.map((att) => (
+                              <span key={att.url} className="group/att relative">
+                                {att.type.startsWith("image/") ? (
+                                  <a href={att.url} target="_blank" rel="noreferrer">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={att.url}
+                                      alt={att.name}
+                                      className="h-12 w-12 rounded-lg border border-white/10 object-cover"
+                                    />
+                                  </a>
+                                ) : (
+                                  <a
+                                    href={att.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="chip !max-w-[9rem] !text-[10px]"
+                                  >
+                                    <Paperclip size={10} />
+                                    <span className="truncate">{att.name}</span>
+                                  </a>
+                                )}
+                                <button
+                                  onClick={() => removeAttachment(card.id, att.url)}
+                                  className="absolute -right-1.5 -top-1.5 hidden h-4 w-4 items-center justify-center rounded-full bg-rose text-white group-hover/att:flex"
+                                  title="Remove"
+                                >
+                                  <X size={10} />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
                         <div className="mt-2 flex items-center justify-between">
                           {a ? (
                             <span className="flex items-center gap-1.5">
@@ -173,6 +266,14 @@ export function BoardView() {
                             <span className="text-[11px] text-white/30">Unassigned</span>
                           )}
                           <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => pickFileFor(card.id)}
+                              disabled={uploading === card.id}
+                              className="rounded-md p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+                              title="Attach a file for context (you pick it)"
+                            >
+                              <Paperclip size={14} />
+                            </button>
                             {ORDER.indexOf(card.col) > 0 && (
                               <button
                                 onClick={() => move(card.id, -1)}
