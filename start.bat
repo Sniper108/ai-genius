@@ -29,12 +29,12 @@ if errorlevel 1 (
 )
 
 REM --- Start Paperclip (AI company) in its own window ---
-REM Runs via npx, so no global install needed. First run downloads it, which
-REM can take a minute. Keep its window open once it's up.
-REM PORT=3100 keeps Paperclip off 3000 (NEXUS's port) so they don't collide,
-REM and matches where the NEXUS Paperclip tab looks for it.
+REM Runs via npx, so no global install needed. `run` just starts the server
+REM (setup/onboarding is already done), so there's no migration y/N prompt to
+REM block it. PORT=3100 keeps Paperclip off 3000 (NEXUS's port) so they don't
+REM collide, and matches where the NEXUS Paperclip tab looks for it.
 echo   [start] Paperclip -^> http://localhost:3100 ^(keep its window open^)
-start "Paperclip" cmd /k "set PORT=3100&& npx paperclipai onboard --yes"
+start "Paperclip" cmd /k "set PORT=3100&& npx paperclipai run"
 
 REM --- First run: install dependencies if they're missing ---
 if not exist "node_modules" (
