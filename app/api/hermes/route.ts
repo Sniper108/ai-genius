@@ -25,8 +25,13 @@ export async function POST(req: NextRequest) {
   if (!prompt?.trim()) return new Response("Missing prompt", { status: 400 });
 
   const isWindows = process.platform === "win32";
+  // Hermes is a reasoning agent and defaults to heavy "thinking" before it
+  // answers, which is the main reason simple chats feel slow. Cap the reasoning
+  // effort for interactive chat so replies come back fast; override with the
+  // HERMES_REASONING env var (none|minimal|low|medium|high|xhigh|max|ultra).
+  const reasoning = process.env.HERMES_REASONING || "low";
   // `hermes -z "<prompt>"` = one-shot mode: prints only the final response.
-  const hermesArgs = ["-z", prompt];
+  const hermesArgs = ["--reasoning", reasoning, "-z", prompt];
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
