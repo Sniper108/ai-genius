@@ -17,8 +17,11 @@ function stripAnsi(s: string): string {
 
 export async function POST(req: NextRequest) {
   let prompt = "";
+  let model = "";
   try {
-    ({ prompt } = await req.json());
+    const body = await req.json();
+    prompt = body.prompt;
+    if (typeof body.model === "string") model = body.model.trim();
   } catch {
     return new Response("Invalid JSON body", { status: 400 });
   }
@@ -30,8 +33,11 @@ export async function POST(req: NextRequest) {
   // effort for interactive chat so replies come back fast; override with the
   // HERMES_REASONING env var (none|minimal|low|medium|high|xhigh|max|ultra).
   const reasoning = process.env.HERMES_REASONING || "low";
-  // `hermes -z "<prompt>"` = one-shot mode: prints only the final response.
-  const hermesArgs = ["--reasoning", reasoning, "-z", prompt];
+  // Optional per-message model override (`hermes -m <id>`). Empty = leave it to
+  // Hermes' own configured default. `-z "<prompt>"` = one-shot final answer.
+  const hermesArgs = ["--reasoning", reasoning];
+  if (model) hermesArgs.push("-m", model);
+  hermesArgs.push("-z", prompt);
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {

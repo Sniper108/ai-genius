@@ -7,6 +7,7 @@ import { RotateCcw, Radio } from "lucide-react";
 import type { AgentDef, AgentStatus } from "@/lib/types";
 import { useCliStream } from "@/lib/useCliStream";
 import { getOmniModel } from "@/lib/omniroute";
+import { getHermesModel } from "@/lib/models";
 import { ChatShell } from "./chat/ChatShell";
 import { MessageRow, TypingDots } from "./chat/MessageRow";
 import { AgentAvatar } from "./Avatar";
@@ -15,11 +16,17 @@ import { buildPromptWithAttachments, type ChatAttachment } from "@/lib/attachmen
 /** A real, live chat for agents backed by a local CLI bridge (e.g. Hermes). */
 export function LiveAgentChat({ agent, status }: { agent: AgentDef; status: AgentStatus }) {
   const isOmni = agent.id === "omniroute";
+  const isHermes = agent.id === "hermes";
+  const bodyExtra = isOmni
+    ? () => ({ model: getOmniModel() })
+    : isHermes
+    ? () => ({ model: getHermesModel() })
+    : undefined;
   const { messages, busy, send, stop, reset } = useCliStream(
     agent.bridge!,
     agent.id,
     agent.name,
-    isOmni ? () => ({ model: getOmniModel() }) : undefined,
+    bodyExtra,
   );
   const [input, setInput] = useState("");
   const [omniModel, setOmniModelState] = useState("auto");

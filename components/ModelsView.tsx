@@ -8,13 +8,62 @@ import {
   saveModels,
   getActiveModel,
   setActiveModel,
+  getHermesModels,
+  saveHermesModels,
+  getHermesModel,
+  setHermesModel,
   type ModelEntry,
 } from "@/lib/models";
 
+interface Target {
+  key: string;
+  label: string;
+  accent: string;
+  endpoint: string;
+  hint: string;
+  placeholder: string;
+  get: () => ModelEntry[];
+  save: (l: ModelEntry[]) => void;
+  getActive: () => string;
+  setActive: (id: string) => void;
+  fallback: string;
+}
+
+const TARGETS: Target[] = [
+  {
+    key: "omniroute",
+    label: "OmniRoute",
+    accent: "#2dd4bf",
+    endpoint: "/api/omniroute",
+    hint: "localhost:20128/v1/models",
+    placeholder: "model id  ·  e.g. aug/kimi-k2.7",
+    get: getModels,
+    save: saveModels,
+    getActive: getActiveModel,
+    setActive: setActiveModel,
+    fallback: "auto",
+  },
+  {
+    key: "hermes",
+    label: "Hermes",
+    accent: "#a3e635",
+    endpoint: "/api/hermes",
+    hint: "run `hermes model` to list yours",
+    placeholder: "model id  ·  e.g. anthropic/claude-sonnet-4.6",
+    get: getHermesModels,
+    save: saveHermesModels,
+    getActive: getHermesModel,
+    setActive: setHermesModel,
+    fallback: "",
+  },
+];
+
 export function ModelsView() {
+  const [targetKey, setTargetKey] = useState("omniroute");
+  const target = TARGETS.find((t) => t.key === targetKey)!;
+
   const [models, setModels] = useState<ModelEntry[]>([]);
-  const [active, setActive] = useState("auto");
-  const [loaded, setLoaded] = useState(false);
+  const [active, setActive] = useState("");
   const [form, setForm] = useState({ id: "", label: "", note: "", free: true });
 
   // Inline model tester
@@ -24,6 +73,40 @@ export function ModelsView() {
   const [testErr, setTestErr] = useState("");
   const [testMs, setTestMs] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Load the catalog + active model whenever the target changes.
+  useEffect(() => {
+    setModels(target.get());
+    setActive(target.getActive());
+    setTestOut("");
+    setTestErr("");
+    setTestMs(null);
+  }, [targetKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const choose = (id: string) => {
+    setActive(id);
+    target.setActive(id);
+  };
+
+  const add = () => {
+    const id = form.id.trim();
+    if (models.some((x) => x.id === id)) return; // no dupes (also blocks empty re-add)
+    const next = [
+      ...models,
+      { id, label: form.label.trim() || id || "Default", note: form.note.trim() || undefined, free: form.free },
+    ];
+    setModels(next);
+    target.save(next);
+    setForm({ id: "", label: "", note: "", free: true });
+  };
+
+  const remove = (id: string) => {
+    const next = models.filter((x) => x.id !== id);
+    const list = next.length ? next : [{ id: target.fallback, label: "Default", free: true }];
+    setModels(list);
+    target.save(list);
+    if (active === id) choose(list[0]?.id ?? target.fallback);
+  };
 
   const runTest = async () => {
     if (testing) {
@@ -38,7 +121,7 @@ export function ModelsView() {
     const ac = new AbortController();
     abortRef.current = ac;
     try {
-      const res = await fetch("/api/omniroute", {
+      const res = await fetch(target.endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: testPrompt, model: active }),
@@ -75,41 +158,6 @@ export function ModelsView() {
     }
   };
 
-  useEffect(() => {
-    setModels(getModels());
-    setActive(getActiveModel());
-    setLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (loaded) saveModels(models);
-  }, [models, loaded]);
-
-  const choose = (id: string) => {
-    setActive(id);
-    setActiveModel(id);
-  };
-
-  const add = () => {
-    const id = form.id.trim();
-    if (!id) return;
-    setModels((m) => {
-      if (m.some((x) => x.id === id)) return m; // no dupes
-      return [
-        ...m,
-        { id, label: form.label.trim() || id, note: form.note.trim() || undefined, free: form.free },
-      ];
-    });
-    setForm({ id: "", label: "", note: "", free: true });
-  };
-
-  const remove = (id: string) =>
-    setModels((m) => {
-      const next = m.filter((x) => x.id !== id);
-      if (active === id) choose(next[0]?.id ?? "auto");
-      return next.length ? next : [{ id: "auto", label: "Auto (smart pick)", free: true }];
-    });
-
   return (
     <div className="mx-auto max-w-3xl px-5 py-8 sm:px-8">
       <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
@@ -117,34 +165,49 @@ export function ModelsView() {
           <Cpu size={22} className="text-cyan" /> Models
         </h1>
         <p className="mt-1 text-sm text-white/45">
-          The model your OmniRoute agent runs on. Tap one to make it active, or add any id from{" "}
-          <span className="mono text-white/60">localhost:20128/v1/models</span>.
+          Pick which model each agent runs on. Tap one to make it active, or add any id from{" "}
+          <span className="mono text-white/60">{target.hint}</span>.
         </p>
       </motion.div>
 
+      {/* Target tabs */}
+      <div className="mt-5 inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1">
+        {TARGETS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTargetKey(t.key)}
+            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-all ${
+              targetKey === t.key ? "text-black" : "text-white/50 hover:text-white"
+            }`}
+            style={targetKey === t.key ? { backgroundColor: t.accent } : undefined}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* Catalog */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="mt-6 space-y-2"
-      >
+      <div className="mt-5 space-y-2">
         {models.map((m) => {
           const isActive = m.id === active;
           return (
             <button
-              key={m.id}
+              key={m.id || "__default__"}
               onClick={() => choose(m.id)}
               className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all ${
                 isActive
-                  ? "border-cyan/50 bg-cyan/[0.07]"
+                  ? "border-white/20 bg-white/[0.06]"
                   : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
               }`}
+              style={isActive ? { borderColor: `${target.accent}80`, backgroundColor: `${target.accent}12` } : undefined}
             >
               <span
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                  isActive ? "bg-cyan/20 text-cyan" : "bg-white/5 text-white/40"
-                }`}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                style={
+                  isActive
+                    ? { backgroundColor: `${target.accent}33`, color: target.accent }
+                    : { backgroundColor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }
+                }
               >
                 {isActive ? <Star size={16} fill="currentColor" /> : <Cpu size={16} />}
               </span>
@@ -152,21 +215,22 @@ export function ModelsView() {
                 <span className="flex items-center gap-2">
                   <span className="truncate text-sm font-semibold">{m.label}</span>
                   {m.free && (
-                    <span className="rounded bg-lime/15 px-1.5 py-px text-[9px] font-bold text-lime">
-                      FREE
-                    </span>
+                    <span className="rounded bg-lime/15 px-1.5 py-px text-[9px] font-bold text-lime">FREE</span>
                   )}
                   {isActive && (
-                    <span className="rounded bg-cyan/20 px-1.5 py-px text-[9px] font-bold text-cyan">
+                    <span
+                      className="rounded px-1.5 py-px text-[9px] font-bold"
+                      style={{ backgroundColor: `${target.accent}33`, color: target.accent }}
+                    >
                       ACTIVE
                     </span>
                   )}
                 </span>
-                <span className="mono block truncate text-[11px] text-white/35">{m.id}</span>
+                <span className="mono block truncate text-[11px] text-white/35">{m.id || "(uses agent default)"}</span>
                 {m.note && <span className="block truncate text-xs text-white/45">{m.note}</span>}
               </span>
               {isActive ? (
-                <Check size={16} className="shrink-0 text-cyan" />
+                <Check size={16} className="shrink-0" style={{ color: target.accent }} />
               ) : (
                 <span
                   onClick={(e) => {
@@ -182,21 +246,21 @@ export function ModelsView() {
             </button>
           );
         })}
-      </motion.div>
+      </div>
 
       {/* Test the active model */}
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.08 }}
+        transition={{ delay: 0.05 }}
         className="glass mt-6 p-5"
       >
         <h2 className="flex items-center gap-2 text-sm font-bold">
-          <Send size={15} className="text-cyan" /> Test the active model
-          <span className="mono ml-auto text-[11px] font-normal text-white/35">{active}</span>
+          <Send size={15} style={{ color: target.accent }} /> Test the active {target.label} model
+          <span className="mono ml-auto text-[11px] font-normal text-white/35">{active || "(default)"}</span>
         </h2>
         <p className="mt-1 text-xs text-white/45">
-          Sends a quick prompt through OmniRoute on the active model, so you can confirm it responds.
+          Sends a quick prompt to {target.label} on the active model, so you can confirm it responds.
         </p>
         <div className="mt-3 flex items-end gap-2">
           <textarea
@@ -213,9 +277,8 @@ export function ModelsView() {
           />
           <button
             onClick={runTest}
-            className={`flex h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white transition-transform hover:scale-105 active:scale-95 ${
-              testing ? "bg-rose/80" : "bg-gradient-to-br from-cyan to-electric shadow-glow shadow-cyan/30"
-            }`}
+            className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white transition-transform hover:scale-105 active:scale-95"
+            style={{ backgroundColor: testing ? "rgba(244,63,94,0.8)" : target.accent }}
           >
             {testing ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
             {testing ? "Stop" : "Test"}
@@ -239,10 +302,17 @@ export function ModelsView() {
             )}
           </div>
         )}
-        {testErr && (
+        {testErr && targetKey === "omniroute" && (
           <p className="mt-2 text-[11px] text-white/40">
             Tip: this needs OmniRoute running. Launch it from your Agent OS icon, or run{" "}
             <span className="mono text-white/60">omniroute</span> in a terminal, then try again.
+          </p>
+        )}
+        {testErr && targetKey === "hermes" && (
+          <p className="mt-2 text-[11px] text-white/40">
+            Tip: if a specific model id fails, it may not exist in your Hermes setup — run{" "}
+            <span className="mono text-white/60">hermes model</span> to see valid ids, or switch back to
+            &quot;Hermes default&quot;.
           </p>
         )}
       </motion.div>
@@ -255,13 +325,13 @@ export function ModelsView() {
         className="glass mt-6 p-5"
       >
         <h2 className="flex items-center gap-2 text-sm font-bold">
-          <Plus size={16} className="text-lime" /> Add a model
+          <Plus size={16} className="text-lime" /> Add a {target.label} model
         </h2>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           <input
             value={form.id}
             onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
-            placeholder="model id  ·  e.g. aug/kimi-k2.7"
+            placeholder={target.placeholder}
             className="mono rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none"
           />
           <input
@@ -281,9 +351,7 @@ export function ModelsView() {
           <button
             onClick={() => setForm((f) => ({ ...f, free: !f.free }))}
             className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all ${
-              form.free
-                ? "border-lime/40 bg-lime/10 text-lime"
-                : "border-white/10 bg-white/5 text-white/50"
+              form.free ? "border-lime/40 bg-lime/10 text-lime" : "border-white/10 bg-white/5 text-white/50"
             }`}
           >
             <Zap size={13} /> {form.free ? "Free" : "Paid"}
@@ -299,8 +367,9 @@ export function ModelsView() {
       </motion.div>
 
       <p className="mono mt-4 text-[11px] leading-relaxed text-white/30">
-        The active model is used by the OmniRoute agent and the Boardroom. Other agents (Claude,
-        Hermes, OpenClaw) pick their own model in their own tools.
+        {targetKey === "omniroute"
+          ? "The active OmniRoute model is used by the OmniRoute agent and the Boardroom."
+          : "The active Hermes model is passed to Hermes on every message. “Hermes default” leaves it to your `hermes model` setting."}
       </p>
     </div>
   );
