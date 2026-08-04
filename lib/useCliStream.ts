@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
 import { saveToVault } from "./vault";
+import { logUsage } from "./usage";
 
 export interface CliMessage {
   id: string;
@@ -78,6 +79,7 @@ export function useCliStream(
       abortRef.current = controller;
 
       let assistantLog = "";
+      const started = Date.now();
 
       const patch = (fn: (m: CliMessage) => CliMessage) =>
         setMessages((prev) => prev.map((m) => (m.id === assistantId ? fn(m) : m)));
@@ -133,6 +135,8 @@ export function useCliStream(
       } finally {
         patch((m) => ({ ...m, streaming: false }));
         setBusy(false);
+        // Free CLI agents don't report a cost — log activity + latency at $0.
+        logUsage({ agent: agentName, costUsd: 0, durationMs: Date.now() - started, turns: 1 });
         if (assistantLog.trim()) {
           void saveToVault(`💬 ${agentName}`, `**You:** ${prompt}\n\n**${agentName}:** ${assistantLog.trim()}`);
         }

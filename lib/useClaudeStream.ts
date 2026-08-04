@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClaudeStreamEvent } from "./types";
 import { clearHistory, readHistory, useAutoSave } from "./useChatHistory";
 import { saveToVault } from "./vault";
+import { logUsage } from "./usage";
 
 export interface ClaudeMessage {
   id: string;
@@ -199,6 +200,12 @@ export function useClaudeStream(storageKey?: string, agentName = "Claude") {
           case "result":
             if (evt.sessionId) setSessionId(evt.sessionId);
             if (!assistantLog.trim() && evt.text) assistantLog = evt.text;
+            logUsage({
+              agent: agentName,
+              costUsd: evt.costUsd,
+              durationMs: evt.durationMs,
+              turns: evt.numTurns,
+            });
             patch((m) => ({
               ...m,
               meta: {

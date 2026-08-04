@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Zap, NotebookPen, Settings2, Paperclip, Columns3, Users, Target, Cpu } from "lucide-react";
+import { LayoutDashboard, Zap, NotebookPen, Settings2, Paperclip, Columns3, Users, Target, Cpu, Wallet, Radar } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { AgentAvatar } from "./Avatar";
 import { StatusDot } from "./StatusDot";
@@ -55,10 +55,22 @@ export function Sidebar() {
           label="Goals"
         />
         <NavItem
+          href="/radar"
+          active={pathname === "/radar"}
+          icon={<Radar size={17} />}
+          label="Radar"
+        />
+        <NavItem
           href="/models"
           active={pathname === "/models"}
           icon={<Cpu size={17} />}
           label="Models"
+        />
+        <NavItem
+          href="/usage"
+          active={pathname === "/usage"}
+          icon={<Wallet size={17} />}
+          label="Usage"
         />
         <NavItem
           href="/journal"
