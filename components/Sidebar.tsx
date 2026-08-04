@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Zap, NotebookPen, Settings2, Paperclip, Columns3, Users } from "lucide-react";
+import { LayoutDashboard, Zap, NotebookPen, Settings2, Paperclip, Columns3, Users, Target, Cpu } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 import { AgentAvatar } from "./Avatar";
 import { StatusDot } from "./StatusDot";
@@ -21,7 +21,7 @@ export function Sidebar() {
           <Zap size={18} className="text-white" />
         </div>
         <div className="leading-tight">
-          <div className="text-[15px] font-bold tracking-tight">NEXUS</div>
+          <div className="text-[15px] font-bold tracking-tight">Agent OS</div>
           <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/35">
             Mission Control
           </div>
@@ -47,6 +47,18 @@ export function Sidebar() {
           active={pathname === "/board"}
           icon={<Columns3 size={17} />}
           label="Board"
+        />
+        <NavItem
+          href="/goals"
+          active={pathname === "/goals"}
+          icon={<Target size={17} />}
+          label="Goals"
+        />
+        <NavItem
+          href="/models"
+          active={pathname === "/models"}
+          icon={<Cpu size={17} />}
+          label="Models"
         />
         <NavItem
           href="/journal"

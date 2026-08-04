@@ -84,7 +84,7 @@ export default function DashboardPage() {
       </div>
 
       <footer className="mono mt-12 pb-8 text-center text-[11px] text-white/25">
-        NEXUS · local mission control · bridged to your Claude Code CLI
+        Agent OS · local mission control · bridged to your Claude Code CLI
       </footer>
     </div>
   );

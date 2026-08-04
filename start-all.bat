@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title NEXUS — Launch Everything
+title Agent OS — Launch Everything
 cd /d "%~dp0"
 
 REM --- Node check ---
@@ -18,10 +18,10 @@ echo   ============================================================
 echo      Launching your whole stack:
 echo        - OmniRoute  (free model gateway)  -> localhost:20128
 echo        - Paperclip  (AI company)          -> localhost:3100
-echo        - NEXUS      (this dashboard)       -> localhost:3000
+echo        - Agent OS      (this dashboard)       -> localhost:3000
 echo.
 echo      Each opens in its own window. Keep them all open.
-echo      Hermes and OpenClaw don't need a window - NEXUS runs
+echo      Hermes and OpenClaw don't need a window - Agent OS runs
 echo      them on demand.
 echo   ============================================================
 echo.
@@ -39,21 +39,21 @@ REM --- Start Paperclip in its own window ---
 echo   [start] Paperclip...
 start "Paperclip" cmd /k npx paperclipai onboard --yes
 
-REM --- First run: install NEXUS deps ---
+REM --- First run: install Agent OS deps ---
 if not exist "node_modules" (
-  echo   [setup] Installing NEXUS dependencies (first run only)...
+  echo   [setup] Installing Agent OS dependencies (first run only)...
   call npm install
 )
 
-REM --- Open the browser once NEXUS is ready ---
+REM --- Open the browser once Agent OS is ready ---
 start "" powershell -NoProfile -WindowStyle Hidden -Command ^
   "for($i=0;$i -lt 90;$i++){ try { if((Invoke-WebRequest -UseBasicParsing 'http://localhost:3000' -TimeoutSec 2).StatusCode -eq 200){ Start-Process 'http://localhost:3000'; break } } catch {} ; Start-Sleep -Seconds 1 }"
 
 echo.
-echo   Starting NEXUS in this window. Keep it open. Ctrl+C to stop NEXUS.
+echo   Starting Agent OS in this window. Keep it open. Ctrl+C to stop Agent OS.
 echo.
 
-REM --- NEXUS runs in THIS window ---
+REM --- Agent OS runs in THIS window ---
 call npm run dev
 
 endlocal

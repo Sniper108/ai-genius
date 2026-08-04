@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title NEXUS Mission Control
+title Agent OS Mission Control
 
 REM Always run from the folder this script lives in, no matter where it's launched from.
 cd /d "%~dp0"
@@ -31,8 +31,8 @@ if errorlevel 1 (
 REM --- Start Paperclip (AI company) in its own window ---
 REM Runs via npx, so no global install needed. `run` just starts the server
 REM (setup/onboarding is already done), so there's no migration y/N prompt to
-REM block it. PORT=3100 keeps Paperclip off 3000 (NEXUS's port) so they don't
-REM collide, and matches where the NEXUS Paperclip tab looks for it.
+REM block it. PORT=3100 keeps Paperclip off 3000 (Agent OS's port) so they don't
+REM collide, and matches where the Agent OS Paperclip tab looks for it.
 echo   [start] Paperclip -^> http://localhost:3100 ^(keep its window open^)
 start "Paperclip" cmd /k "set PORT=3100&& npx paperclipai run"
 
@@ -52,7 +52,7 @@ start "" powershell -NoProfile -WindowStyle Hidden -Command ^
 
 echo.
 echo   ============================================================
-echo      NEXUS Mission Control is starting up...
+echo      Agent OS Mission Control is starting up...
 echo.
 echo      Your browser will open automatically in a few seconds.
 echo      Keep THIS window open while you use the dashboard.

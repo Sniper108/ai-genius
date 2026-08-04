@@ -3,12 +3,13 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 import { AuroraBackground } from "@/components/AuroraBackground";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Nexus · AI Mission Control",
+  title: "Agent OS · AI Mission Control",
   description: "A local operating system for commanding Claude and your fleet of AI agents.",
 };
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Sidebar />
           <main className="flex-1 md:ml-[260px]">{children}</main>
         </div>
+        <CommandPalette />
       </body>
     </html>
   );
