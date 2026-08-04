@@ -9,6 +9,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { SystemVitals } from "@/components/SystemVitals";
 import { AgentCard } from "@/components/AgentCard";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { GrowthCockpit } from "@/components/GrowthCockpit";
 
 export default function DashboardPage() {
   const statuses = useFleetStatus();
@@ -30,29 +31,24 @@ export default function DashboardPage() {
         <SystemVitals />
       </motion.div>
 
-      {/* Quick launch banner */}
+      {/* Growth cockpit: quick actions + today snapshot */}
+      <GrowthCockpit />
+
+      {/* Fleet status + jump into Claude */}
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="glass mt-6 flex flex-col items-start justify-between gap-4 overflow-hidden p-6 sm:flex-row sm:items-center"
+        transition={{ delay: 0.35 }}
+        className="glass mt-6 flex flex-col items-start justify-between gap-4 overflow-hidden p-5 sm:flex-row sm:items-center"
       >
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-claude/30 blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-2">
-            <Radio size={16} className="text-lime" />
-            <span className="text-xs font-medium uppercase tracking-wider text-white/50">
-              {online} of {AGENTS.length} agents online
-            </span>
-          </div>
-          <h2 className="mt-1 text-xl font-bold">Ready when you are.</h2>
-          <p className="text-sm text-white/45">
-            Drop into the Claude console and start commanding your fleet.
-          </p>
+        <div className="relative flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-white/50">
+          <Radio size={16} className="text-lime" />
+          {online} of {AGENTS.length} agents online
         </div>
         <Link
           href="/agents/claude"
-          className="relative flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-electric to-cyan px-5 py-3 text-sm font-semibold text-white shadow-glow shadow-electric/40 transition-transform hover:scale-105 active:scale-95"
+          className="relative flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-electric to-cyan px-5 py-2.5 text-sm font-semibold text-white shadow-glow shadow-electric/40 transition-transform hover:scale-105 active:scale-95"
         >
           <Terminal size={16} />
           Chat with Claude
